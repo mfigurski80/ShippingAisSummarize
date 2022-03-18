@@ -20,6 +20,17 @@ def initCSV(filename, columns) -> bool:
     return True
 
 
+def readShipDataset(filename) -> dict:
+    f = open(filename)
+    r = csv.reader(f)
+    ships = {}
+    next(r)  # skip header
+    for row in r:
+        ships[int(row[0])] = row[1:]
+    f.close()
+    return ships
+
+
 def shipDailyDataIter(r):
     """Iterator that goes over full dataset and
     yields (shipId, ship, day), where ship is list of points
@@ -62,11 +73,13 @@ def getCargoChange(d):
     return getChangeSummation(d, lambda a, b: abs(float(b[7]) - float(a[7])))
 
 
-def summarize(r, wr):
+def summarize(r, wr, ship_data):
     # skip header row
     next(r)
 
     for (ship, data, day) in shipDailyDataIter(r):
+        if ship not in ship_data or int(ship_data[ship][1]) >= 90:
+            continue
         # still need kmCovered, startCargo, cargoDiff
         #  print(f"Ship {ship} -- {len(data)} entries on {day}")
         data.sort(key=lambda r: r[1])
@@ -92,8 +105,9 @@ def summarize(r, wr):
         )
 
 
-def performSummarization(aggregate_fname: str, out_fname: str = "./SHIP_DAILY_AIS.csv"):
-
+def performSummarization(
+    aggregate_fname: str, ship_fname: str, out_fname: str = "./SHIP_DAILY_AIS.csv"
+):
     initCSV(
         out_fname,
         [
@@ -108,13 +122,13 @@ def performSummarization(aggregate_fname: str, out_fname: str = "./SHIP_DAILY_AI
             "lastTime",
         ],
     )
-
     agg_f = open(aggregate_fname)
     summ_f = open(out_fname, "a")
-    summarize(csv.reader(agg_f), csv.writer(summ_f))
+    ship_data = readShipDataset(ship_fname)
+    summarize(csv.reader(agg_f), csv.writer(summ_f), ship_data)
     agg_f.close()
     summ_f.close()
 
 
 if __name__ == "__main__":
-    performSummarization("../results/AGGREGATE_AIS.csv")
+    performSummarization("../results/AGGREGATE_AIS.csv", "../filterData/ships.csv")
