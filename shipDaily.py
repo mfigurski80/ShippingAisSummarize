@@ -56,25 +56,30 @@ def summarizeShipDayData(ship, data, day, ship_data):
     data.sort(key=lambda r: r[1])
     # print(f"First Entry:", data[0])
     # print(f"Last Entry:", data[-1])
-    chCargo = None
+    cargo = 0
+    chCargo = 0
     try:
         chCargo = getCargoChange(data)
+        cargo = float(data[0][7])
     except:
-        return None
+        pass
+    if str(chCargo) == "":
+        raise Exception("bad chCargo?")
     return [
         ship,
         day,
-        data[0][8],
-        data[0][2],
-        data[0][3],
+        int(data[0][8]),
+        float(data[0][2]),
+        float(data[0][3]),
         getDistanceTraveled(data),
-        data[0][7],
+        cargo,
         chCargo,
         readDT(data[-1][1]).time(),
     ]
 
 
 def summarizeShipDaily(r, wr, ship_data):
+    print("Grouping data by ship and day")
     # skip header row
     next(r)
 
@@ -114,6 +119,10 @@ def performSummarizeShipDaily(
 
 if __name__ == "__main__":
     performSummarizeShipDaily(
-        ["../results/AGG-2016-2018-AIS.csv", "../results/AGGREGATE_AIS.csv"],
+        [
+            "../results/AGG-2015-2016-AIS.csv",
+            "../results/AGG-2016-2018-AIS.csv",
+            "../results/AGGREGATE_AIS.csv",
+        ],
         "../filterData/ships.csv",
     )
