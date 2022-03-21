@@ -15,7 +15,13 @@ def dailyDataIterator(r, ship_data):
         res = [
             summarizeShipDayData(ship, ships[ship], day, ship_data) for ship in ships
         ]
+        for k in ships:
+            print(ship_data[k])
         yield (list(filter(None, res)), day)
+
+
+def getShipArea(ship_row, ship_data):
+    return float(ship_data[ship_row[0]][2]) * float(ship_data[ship_row[0]][3])
 
 
 def summarizeDaily(in_r, out_wr, ship_data):
@@ -23,7 +29,19 @@ def summarizeDaily(in_r, out_wr, ship_data):
     # skip header...
     next(in_r)
     for (data, day) in dailyDataIterator(in_r, ship_data):
-        continue
+        out = [
+            day,
+            len(data),
+            sum([ship[5] for ship in data]),
+            len([ship[5] for ship in data if float(ship[5]) < 10]),
+            sum([float(ship[6]) for ship in data]),
+            sum([float(ship[7]) for ship in data]),
+            sum([float(ship[6]) for ship in data if float(ship[5]) < 10]),
+            sum([getShipArea(ship, ship_data) for ship in data]),
+            sum([getShipArea(ship, ship_data) for ship in data if float(ship[5]) < 10]),
+        ]
+        out_wr.writerow(out)
+        break
     pass
 
 
@@ -40,7 +58,9 @@ def performSummarizeDaily(
                 "nStationary",
                 "totalCargo",
                 "totalChCargo",
+                "totalStationaryCargo",
                 "totalShipArea",
+                "totalStationaryArea",
             ]
         )
     )
@@ -64,6 +84,7 @@ def performSummarizeDaily(
 
 if __name__ == "__main__":
     performSummarizeDaily(
-        ["../results/AGG-2016-2018-AIS.csv", "../results/AGGREGATE_AIS.csv"],
+        #  ["../results/AGG-2016-2018-AIS.csv", "../results/AGGREGATE_AIS.csv"],
+        ["../results/AGG-2016-2018-AIS.csv"],
         "../filterData/ships.csv",
     )
