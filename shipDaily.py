@@ -8,18 +8,18 @@ from utils import distance, readDT, initCSV, readShipDataset
 
 def shipDailyDataIter(r):
     """Iterator that goes over full dataset and
-    yields (shipId, ship, day), where ship is list of points
-    and day is datetime.date
-    Assumes full dataset is segmented by *day* but not
-    by *shipId*, meaning that once the day changes, it
-    will never repeat
+    yields (shipId, ship, day), where ship is
+    list of points and day is datetime.date
+    Assumes full dataset is segmented by *day*
+    but not by *shipId*, meaning that once the
+    day changes, it will never repeat
     """
     cur_date = datetime(2000, 1, 1).date()
     ships_dict = {}
     for row in r:
         new_date = readDT(row[1]).date()
         if cur_date != new_date:  # new date!
-            print(f"Found new date: {cur_date} -- {len(ships_dict)} ships")
+            print(f"Date: {cur_date} -- {len(ships_dict)} ships")
             if ships_dict == {}:
                 cur_date = new_date
                 continue
@@ -74,7 +74,7 @@ def summarizeShipDayData(ship, data, day, ship_data):
     ]
 
 
-def summarize(r, wr, ship_data):
+def summarizeShipDaily(r, wr, ship_data):
     # skip header row
     next(r)
 
@@ -86,7 +86,7 @@ def summarize(r, wr, ship_data):
             wr.writerow(summary)
 
 
-def performSummarization(
+def performSummarizeShipDaily(
     aggregate_fnames: [str], ship_fname: str, out_fname: str = "./SHIP_DAILY_AIS.csv"
 ):
     initCSV(
@@ -107,13 +107,13 @@ def performSummarization(
     ship_data = readShipDataset(ship_fname)
     for fname in aggregate_fnames:
         agg_f = open(fname)
-        summarize(csv.reader(agg_f), csv.writer(summ_f), ship_data)
+        summarizeShipDaily(csv.reader(agg_f), csv.writer(summ_f), ship_data)
         agg_f.close()
     summ_f.close()
 
 
 if __name__ == "__main__":
-    performSummarization(
+    performSummarizeShipDaily(
         ["../results/AGG-2016-2018-AIS.csv", "../results/AGGREGATE_AIS.csv"],
         "../filterData/ships.csv",
     )
