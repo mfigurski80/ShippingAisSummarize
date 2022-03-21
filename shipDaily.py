@@ -1,34 +1,9 @@
 import csv
-import os
+
 from datetime import datetime, timedelta
 import functools
 
-from distance import distance
-
-
-def readDT(t_str):
-    return datetime.strptime(t_str, "%Y-%m-%dT%H:%M:%S")
-
-
-def initCSV(filename, columns) -> bool:
-    if os.path.exists(filename) and os.stat(filename).st_size != 0:
-        return False
-    f = open(filename, "w")
-    wr = csv.writer(f)
-    wr.writerow(columns)
-    f.close()
-    return True
-
-
-def readShipDataset(filename) -> dict:
-    f = open(filename)
-    r = csv.reader(f)
-    ships = {}
-    next(r)  # skip header
-    for row in r:
-        ships[int(row[0])] = row[1:]
-    f.close()
-    return ships
+from utils import distance, readDT, initCSV, readShipDataset
 
 
 def shipDailyDataIter(r):
@@ -45,11 +20,11 @@ def shipDailyDataIter(r):
         new_date = readDT(row[1]).date()
         if cur_date != new_date:  # new date!
             print(f"Found new date: {cur_date} -- {len(ships_dict)} ships")
-            cur_date = new_date
             if ships_dict == {}:
+                cur_date = new_date
                 continue
-            for k in ships_dict:
-                yield (k, ships_dict[k], cur_date - timedelta(days=1))
+            yield (ships_dict, cur_date)
+            cur_date = new_date
             ships_dict = {}
 
         ship_id = int(row[0])
@@ -73,36 +48,42 @@ def getCargoChange(d):
     return getChangeSummation(d, lambda a, b: abs(float(b[7]) - float(a[7])))
 
 
+def summarizeShipDayData(ship, data, day, ship_data):
+    # still need kmCovered, startCargo, cargoDiff
+    # print(f"Ship {ship} -- {len(data)} entries on {day}")
+    if ship not in ship_data or int(ship_data[ship][1]) >= 90:
+        return None
+    data.sort(key=lambda r: r[1])
+    # print(f"First Entry:", data[0])
+    # print(f"Last Entry:", data[-1])
+    chCargo = None
+    try:
+        chCargo = getCargoChange(data)
+    except:
+        return None
+    return [
+        ship,
+        day,
+        data[0][8],
+        data[0][2],
+        data[0][3],
+        getDistanceTraveled(data),
+        data[0][7],
+        chCargo,
+        readDT(data[-1][1]).time(),
+    ]
+
+
 def summarize(r, wr, ship_data):
     # skip header row
     next(r)
 
-    for (ship, data, day) in shipDailyDataIter(r):
-        if ship not in ship_data or int(ship_data[ship][1]) >= 90:
-            continue
-        # still need kmCovered, startCargo, cargoDiff
-        #  print(f"Ship {ship} -- {len(data)} entries on {day}")
-        data.sort(key=lambda r: r[1])
-        #  print(f"First Entry:", data[0])
-        #  print(f"Last Entry:", data[-1])
-        chCargo = None
-        try:
-            chCargo = getCargoChange(data)
-        except:
-            pass
-        wr.writerow(
-            [
-                ship,
-                day,
-                data[0][8],
-                data[0][2],
-                data[0][3],
-                getDistanceTraveled(data),
-                data[0][7],
-                chCargo,
-                readDT(data[-1][1]).time(),
-            ]
-        )
+    for (ships, day) in shipDailyDataIter(r):
+        for ship in ships:
+            summary = summarizeShipDayData(ship, ships[ship], day, ship_data)
+            if summary is None:
+                continue
+            wr.writerow(summary)
 
 
 def performSummarization(
