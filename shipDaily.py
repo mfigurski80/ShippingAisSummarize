@@ -106,7 +106,7 @@ def summarize(r, wr, ship_data):
 
 
 def performSummarization(
-    aggregate_fname: str, ship_fname: str, out_fname: str = "./SHIP_DAILY_AIS.csv"
+    aggregate_fnames: [str], ship_fname: str, out_fname: str = "./SHIP_DAILY_AIS.csv"
 ):
     initCSV(
         out_fname,
@@ -122,13 +122,17 @@ def performSummarization(
             "lastTime",
         ],
     )
-    agg_f = open(aggregate_fname)
     summ_f = open(out_fname, "a")
     ship_data = readShipDataset(ship_fname)
-    summarize(csv.reader(agg_f), csv.writer(summ_f), ship_data)
-    agg_f.close()
+    for fname in aggregate_fnames:
+        agg_f = open(fname)
+        summarize(csv.reader(agg_f), csv.writer(summ_f), ship_data)
+        agg_f.close()
     summ_f.close()
 
 
 if __name__ == "__main__":
-    performSummarization("../results/AGGREGATE_AIS.csv", "../filterData/ships.csv")
+    performSummarization(
+        ["../results/AGG-2016-2018-AIS.csv", "../results/AGGREGATE_AIS.csv"],
+        "../filterData/ships.csv",
+    )

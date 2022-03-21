@@ -1,1 +1,0 @@
-shipId, date, locationId, startLong, startLat, kmCovered, cargo, cargoDiff
