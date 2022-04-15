@@ -19,7 +19,7 @@ def shipDailyDataIter(r):
     for row in r:
         new_date = readDT(row[1]).date()
         if cur_date != new_date:  # new date!
-            print(f"Date: {cur_date} -- {len(ships_dict)} ships")
+            # print(f"Date: {cur_date} -- {len(ships_dict)} ships")
             if ships_dict == {}:
                 cur_date = new_date
                 continue
