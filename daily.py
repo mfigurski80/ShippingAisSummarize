@@ -99,11 +99,11 @@ def performSummarizeDaily(
 if __name__ == "__main__":
     performSummarizeDaily(
         [
-            "../results/AGG-2015-2016-AIS.csv",
-            "../results/AGG-2016-2018-AIS.csv",
-            "../results/AGG_2018-2021.9-AIS.csv",
-            "../results/AGG-2021.9-2022-AIS.csv",
+            "../data/AGG-2015-2016-AIS.csv",
+            "../data/AGG-2016-2018-AIS.csv",
+            "../data/AGG_2018-2021.9-AIS.csv",
+            "../data/AGG-2021.9-2022-AIS.csv",
         ],
-        #  ["../results/AGG-2016-2018-AIS.csv"],
+        #  ["../data/AGG-2016-2018-AIS.csv"],
         "../getFilterData/ships.csv",
     )

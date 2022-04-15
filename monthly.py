@@ -132,11 +132,11 @@ def performSummarizeMonthly(
 if __name__ == "__main__":
     performSummarizeMonthly(
         [
-            "../results/AGG-2015-2016-AIS.csv",
-            "../results/AGG-2016-2018-AIS.csv",
-            "../results/AGG-2018-2021.9-AIS.csv",
-            "../results/AGG-2021.9-2022-AIS.csv",
-            "../results/AGG-2019.2-2019.4-AIS.csv",
+            "../data/AGG-2015-2016-AIS.csv",
+            "../data/AGG-2016-2018-AIS.csv",
+            "../data/AGG-2018-2021.9-AIS.csv",
+            "../data/AGG-2021.9-2022-AIS.csv",
+            "../data/AGG-2019.2-2019.4-AIS.csv",
         ],
         "../getFilterData/ships.csv",
     )

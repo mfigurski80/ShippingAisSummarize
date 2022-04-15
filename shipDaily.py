@@ -120,9 +120,9 @@ def performSummarizeShipDaily(
 if __name__ == "__main__":
     performSummarizeShipDaily(
         [
-            "../results/AGG-2015-2016-AIS.csv",
-            "../results/AGG-2016-2018-AIS.csv",
-            "../results/AGGREGATE_AIS.csv",
+            "../data/AGG-2015-2016-AIS.csv",
+            "../data/AGG-2016-2018-AIS.csv",
+            "../data/AGGREGATE_AIS.csv",
         ],
         "../filterData/ships.csv",
     )
