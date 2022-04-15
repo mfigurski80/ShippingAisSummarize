@@ -7,6 +7,11 @@ from daily import getShipArea, dailyDataIterator as dailyShipDataIterator
 
 
 def shipDailyDataIterByMonth(r, ship_data):
+    """By-month iterator through data. Yields
+    dict of ships with their list of daily
+    points and the month in question like:
+    ({shipId: [shipDay]}, datetime)
+    """
     daily_by_ship = {}
     cur_date = None
     month = -1
@@ -129,8 +134,9 @@ if __name__ == "__main__":
         [
             "../results/AGG-2015-2016-AIS.csv",
             "../results/AGG-2016-2018-AIS.csv",
-            "../results/AGG_2018-2021.9-AIS.csv",
+            "../results/AGG-2018-2021.9-AIS.csv",
             "../results/AGG-2021.9-2022-AIS.csv",
+            "../results/AGG-2019.2-2019.4-AIS.csv",
         ],
         "../getFilterData/ships.csv",
     )
