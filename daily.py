@@ -8,23 +8,24 @@ from shipDaily import shipDailyDataIter, summarizeShipDayData
 
 def dailyDataIterator(r, ship_data):
     """Iterator that goes over dataset and yields
-    a list of *daily* points for each day and a
-    date: ([], datetime)
+    a list of *ship day* points for a specific day and
+    the associated date: ([[ShipDay]], datetime)
     """
     for (ships, day) in shipDailyDataIter(r):
         res = [
             summarizeShipDayData(ship, ships[ship], day, ship_data) for ship in ships
         ]
+        # print(f"[daily.py dailyDataIterator] yielding {res}")
         yield (list(filter(None, res)), day)
 
 
-def getShipArea(ship_row, ship_data):
+def getShipArea(ship_id, ship_data):
     try:
-        return float(ship_data[ship_row][2]) * float(ship_data[ship_row][3])
+        return float(ship_data[ship_id][2]) * float(ship_data[ship_id][3])
     except:
-        print(f"FAILED SHIP DIMENSIONS: {ship_data[ship_row]}")
+        print(f"FAILED SHIP DIMENSIONS: {ship_data[ship_id]}")
     try:
-        return float(ship_data[ship_row][2]) * (0.12 * float(ship_data[ship_row][2]))
+        return float(ship_data[ship_id][2]) * (0.12 * float(ship_data[ship_id][2]))
     except:
         pass
     return 0
@@ -34,7 +35,6 @@ def summarizeDaily(in_r, out_wr, ship_data):
     # print(ship_data.keys())
     # skip header...
     next(in_r)
-    prev_ships = Set()
     for (data, day) in dailyDataIterator(in_r, ship_data):
         out = [
             day,
@@ -44,9 +44,14 @@ def summarizeDaily(in_r, out_wr, ship_data):
             sum([float(ship[6]) for ship in data]),
             sum([float(ship[7]) for ship in data]),
             sum([float(ship[6]) for ship in data if float(ship[5]) < 10]),
-            sum([getShipArea(ship, ship_data) for ship in data]),
-            sum([getShipArea(ship, ship_data) for ship in data if float(ship[5]) < 10]),
-            sum([(ship[0] in prev_ships) for ship in data]),
+            sum([getShipArea(ship[0], ship_data) for ship in data]),
+            sum(
+                [
+                    getShipArea(ship[0], ship_data)
+                    for ship in data
+                    if float(ship[5]) < 10
+                ]
+            ),
         ]
         out_wr.writerow(out)
     pass
@@ -69,7 +74,6 @@ def performSummarizeDaily(
                 "totalStationaryCargo",
                 "totalShipArea",
                 "totalStationaryArea",
-                "nFromPreviousDay",
             ]
         )
         + "\n"
